@@ -6,7 +6,7 @@ import io.reactivex.schedulers.Schedulers
 
 object RxUtils {
 
-    /*fun <T> applySchedulers(): ObservableTransformer<T, T>
+    fun <T> applySchedulers(): ObservableTransformer<T, T>
     {
         return {
             observable ->
@@ -14,5 +14,5 @@ object RxUtils {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
         }
-    }*/
+    }
 }
