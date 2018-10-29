@@ -2,51 +2,40 @@ package com.example.jfatiya.mvvmkotlin.viewmodel
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MutableLiveData
 import android.databinding.ObservableField
 import android.databinding.ObservableInt
 import com.example.jfatiya.mvvmkotlin.database.LoginRepository
-import com.example.jfatiya.mvvmkotlin.model.LoginModel
-import com.example.jfatiya.mvvmkotlin.model.LoginRequestModel
 import com.example.jfatiya.mvvmkotlin.model.LoginResponseModel
+import com.example.jfatiya.mvvmkotlin.model.LoginRequestModel
+
 import com.google.gson.Gson
+//Don't try to get Android Specific classes
+//for whatsoever reasons...eg : Context,Resources...!
+//https://stackoverflow.com/questions/40475334/best-practice-for-android-mvvm-startactivity
+public class LoginViewModel(application: Application,
+                            var loginRepository: LoginRepository,
+                            var LoginResponseModelMutableLiveData: MutableLiveData<LoginResponseModel>)
+                             : AndroidViewModel(application)
+{
 
-public class LoginViewModel : AndroidViewModel {
-
-    var loginRepository: LoginRepository
-    var loginModelLiveData: LiveData<LoginResponseModel>
-
-    val username = ObservableField("krishak5")
-    val password = ObservableField("krishak123")
+    val username = ObservableField("")
+    val password = ObservableField("")
     val isLoading = ObservableInt(8)
     val isLogging = ObservableInt(0)
-     val usernameError = ObservableField<String>()
-     val passwordError = ObservableField<String>()
+    val usernameError = ObservableField<String>()
+    val passwordError = ObservableField<String>()
 
-    constructor(application: Application, loginRepository: LoginRepository,
-                loginModelLiveData: LiveData<LoginResponseModel>)
-            : super(application) {
-        this.loginRepository = loginRepository
-        this.loginModelLiveData = loginModelLiveData
+
+    fun getLoginDetails(): MutableLiveData<LoginResponseModel> {
+        return LoginResponseModelMutableLiveData
     }
 
-    /* fun LoginViewModel(application: Application): ??? {
-         //super(application)
-         loginRepository = LoginRepository(application)
-         loginModelLiveData = loginRepository.getLoginDetails()
-     }*/
-
-
-
-    fun getLoginDetails(): LiveData<LoginResponseModel> {
-        return loginModelLiveData
-    }
-
-    fun insert(model: LoginModel) {
+    fun insert(model: LoginResponseModel) {
         loginRepository.insert(model)
     }
 
-    fun update(model: LoginModel) {
+    fun update(model: LoginResponseModel) {
         loginRepository.update(model)
     }
 
@@ -54,10 +43,9 @@ public class LoginViewModel : AndroidViewModel {
         if (validateInputs()) {
             isLoading.set(0)
             isLogging.set(8)
-            val model = LoginRequestModel(username.get()!!, password.get()!!)
-            val gson = Gson()
-            //val credentials = EncryptDecrypt.ToEncrypt(gson.toJson(model))
-            loginRepository.loginUser(credentials)
+
+            //https://medium.com/meesho-tech/non-null-observablefield-in-kotlin-bd72d31ab54f
+            loginRepository.loginUser(username.get()!!, password.get()!!)
         } else {
             isLoading.set(8)
             isLogging.set(0)
@@ -81,3 +69,4 @@ public class LoginViewModel : AndroidViewModel {
         }
         return isValid
     }
+}

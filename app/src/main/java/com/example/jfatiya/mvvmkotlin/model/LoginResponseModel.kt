@@ -12,8 +12,8 @@ import com.google.gson.annotations.SerializedName
 data class LoginResponseModel(
         @PrimaryKey(autoGenerate = true)
         val id: Int,
-        @SerializedName("token") val token: String,
-        @SerializedName("password") var password: String
+        @SerializedName("token") val token: String
+        //,@SerializedName("password") var password: String
 ) {
-    constructor(id: Int) : this(id, "", "")
+    constructor(id: Int) : this(id, "")
 }

@@ -21,10 +21,12 @@ abstract class DatabaseInstance : RoomDatabase() {
     (db: DatabaseInstance?) : AsyncTask<Void, Void, Void>()
     {
 
-        private val loginDao: LoginDao
+        private lateinit var loginDao: LoginDao
 
         init {
-            loginDao = db.loginDao()
+            if (db != null) {
+                loginDao = db.loginDao()
+            }
         }
 
         override fun doInBackground(vararg voids: Void): Void? {
@@ -33,14 +35,16 @@ abstract class DatabaseInstance : RoomDatabase() {
         }
     }
 
-    companion object {
+    companion object
+    {
 
-        private var instance: DatabaseInstance? = null
+        @Volatile private var instance: DatabaseInstance? = null
 
         @Synchronized
         fun getInstance(context: Context): DatabaseInstance {
             if (instance == null) {
-                instance = Room.databaseBuilder(context.applicationContext, DatabaseInstance::class.java, "mvvmkotlin_db")
+                instance = Room.databaseBuilder(context.applicationContext, DatabaseInstance::class.java,
+                        "mvvmkotlin_db")
                         .fallbackToDestructiveMigration()
                         .addCallback(callback)
                         .build()
@@ -48,7 +52,8 @@ abstract class DatabaseInstance : RoomDatabase() {
             return instance as DatabaseInstance
         }
 
-        private val callback = object : RoomDatabase.Callback() {
+        private val callback = object : RoomDatabase.Callback()
+        {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 PopulateFirstTimeAsync(instance).execute()

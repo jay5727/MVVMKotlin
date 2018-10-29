@@ -11,7 +11,7 @@ import com.example.jfatiya.mvvmkotlin.model.LoginResponseModel
 interface LoginDao {
 
     @Query("SELECT * FROM login_table")
-     fun getLoginDetails() : LiveData<LoginResponseModel>
+    fun getLoginDetails(): LiveData<LoginResponseModel>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertLoginDetails(model: LoginResponseModel)

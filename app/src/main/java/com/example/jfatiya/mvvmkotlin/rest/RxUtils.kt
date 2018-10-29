@@ -1,3 +1,4 @@
+/*
 package com.example.jfatiya.mvvmkotlin.rest
 
 import io.reactivex.ObservableTransformer
@@ -15,4 +16,4 @@ object RxUtils {
                     .observeOn(AndroidSchedulers.mainThread())
         }
     }
-}
+}*/

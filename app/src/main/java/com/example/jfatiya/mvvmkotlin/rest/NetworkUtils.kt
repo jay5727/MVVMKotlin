@@ -5,21 +5,24 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
-object NetworkUtils {
-    val BASE_URL = "https://reqres.in/api/login";
-    val apiService: APIService
-        get() {
-            val retrofit = Retrofit.Builder()
+class NetworkUtils {
 
-            retrofit
-                    .baseUrl(BASE_URL)
-                    .client(OkHttpClient())
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                    .build()
+    companion object {
+        val BASE_URL = "https://reqres.in/";
+        val getApiService: APIService
+            get() {
+                val retrofit = Retrofit.Builder()
 
-            return retrofit.build().create(APIService::class.java)
-        }
+                retrofit
+                        .baseUrl(BASE_URL)
+                        .client(OkHttpClient())
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                        .build()
+
+                return retrofit.build().create(APIService::class.java)
+            }
+    }
 }
 /*
 public class NetworkUtils {

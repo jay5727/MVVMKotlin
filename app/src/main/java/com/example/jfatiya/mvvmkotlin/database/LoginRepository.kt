@@ -5,27 +5,35 @@ import android.app.Application
 import android.arch.lifecycle.LiveData
 import android.os.AsyncTask
 import android.text.TextUtils
+import android.widget.Toast
+import com.example.jfatiya.mvvmkotlin.model.LoginRequestModel
 import com.example.jfatiya.mvvmkotlin.model.LoginResponseModel
+import com.example.jfatiya.mvvmkotlin.rest.ApiClient
 import com.example.jfatiya.mvvmkotlin.rest.NetworkUtils
-import com.example.jfatiya.mvvmkotlin.rest.RxUtils
+/*import com.example.jfatiya.mvvmkotlin.rest.RxUtils*/
 import com.google.gson.Gson
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
-/**
- * Created by Jay on 24-10-2018.
- */
+
+/*
+Created by Jay on 24-10-2018.
+*/
+
 class LoginRepository(application: Application) {
 
     private val loginDao: LoginDao
     val loginDetails: LiveData<LoginResponseModel>
-    private val executor: Executor
+    //private val executor: Executor
 
     init {
         val db = DatabaseInstance.getInstance(application)
         this.loginDao = db.loginDao()
         this.loginDetails = loginDao.getLoginDetails()
-        executor = Executors.newSingleThreadExecutor()
+        //executor = Executors.newSingleThreadExecutor()
     }
 
     fun insert(model: LoginResponseModel) {
@@ -36,7 +44,7 @@ class LoginRepository(application: Application) {
         UpdateFormAsyncTask(loginDao).execute(model)
     }
 
-    class InsertFormAsyncTask (private val loginDao: LoginDao) : AsyncTask<LoginResponseModel, Void, Void>() {
+    class InsertFormAsyncTask(private val loginDao: LoginDao) : AsyncTask<LoginResponseModel, Void, Void>() {
 
         override fun doInBackground(vararg models: LoginResponseModel): Void? {
             loginDao.insertLoginDetails(models[0])
@@ -44,7 +52,7 @@ class LoginRepository(application: Application) {
         }
     }
 
-    class UpdateFormAsyncTask (private val loginDao: LoginDao) : AsyncTask<LoginResponseModel, Void, Void>() {
+    class UpdateFormAsyncTask(private val loginDao: LoginDao) : AsyncTask<LoginResponseModel, Void, Void>() {
 
         override fun doInBackground(vararg models: LoginResponseModel): Void? {
             loginDao.updateLoginDetails(models[0])
@@ -52,29 +60,26 @@ class LoginRepository(application: Application) {
         }
     }
 
-    @SuppressLint("CheckResult")
-    fun loginUser(credentials: String) {
-
-        NetworkUtils.getAPIService().login(credentials)
-                .compose(RxUtils.applySchedulers())
+    fun loginUser(emailId: String, password: String) {
+        //ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
+        val apiService = ApiClient.getClient()
+        /*val disposable = */apiService.login(LoginRequestModel(emailId, password))
+                //.compose()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                //.subscribeOn(Schedulers.newThread())
+                //.observeOn(Schedulers.computation())
                 .subscribe(
-                        { response: String ->
-                            executor.execute {
-                                try {
-                                    if (!TextUtils.isEmpty(response)) {
-                                        //val result = EncryptDecrypt.ToDecrypt(response)
-                                        val gson = Gson()
-                                        val jsonObject = JSONArray(result).getJSONArray(0).getJSONObject(0)
-                                        val model = gson.fromJson<Any>(jsonObject.toString(), LoginResponseModel::class.java)
-                                        model.setId(1)
-                                        insert(model)
-                                    }
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
-                            }
+                        {
+                           result ->
+                            showResults(result.token);
                         },
-                        { e: Throwable -> e.printStackTrace() }
-                )
+                        {
+                            error->
+                        })
+    }
+
+    private fun showResults(token :String) {
+      val x:Int=5
     }
 }
